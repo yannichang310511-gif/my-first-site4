@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資深嵌入式系統 Driver 開發專家 & 2026 技術探索</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Smooth light/dark card styling inspired by clean developer portfolios */
+        .card-light {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        .card-dark {
+            background: #1e293b;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen selection:bg-emerald-500 selection:text-white">
+
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center shadow-md overflow-hidden ring-2 ring-emerald-500/30">
+                    <img src="https://img.ai365.fans/cdn-cgi/image/width=1400,quality=90,format=auto/artworks/3aad98c2-8ddf-4d92-8b24-b86f46271312/sqd3eegopal.png" alt="Avatar" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100/10b981/ffffff?text=DEV'">
+                </div>
+                <div>
+                    <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white">Embedded Dev Portfolio</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-400">技術經理 & Driver 專家</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <a href="#about" class="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">專業經歷</a>
+                <a href="#skills" class="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">核心能力</a>
+                <a href="#m3le" class="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">2026 M3LE 專案</a>
+                <a href="#journey" class="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">技術探索之旅</a>
+                <a href="#contact" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all shadow-sm">與我聯繫</a>
+            </nav>
+
+            <!-- Controls (Audio & Theme Toggles) -->
+            <div class="flex items-center space-x-2">
+                <!-- Audio Toggle Button -->
+                <button id="audio-toggle" title="播放/暫停 背景音樂" class="p-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-emerald-500 hover:text-white transition-all flex items-center space-x-1.5 text-xs font-medium">
+                    <i id="audio-icon" class="fa-solid fa-volume-xmark text-sm"></i>
+                    <span id="audio-text" class="hidden sm:inline">BGM 關閉</span>
+                </button>
+
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" title="切換深色/淺色模式" class="p-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-emerald-500 hover:text-white transition-all">
+                    <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
+                </button>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white focus:outline-none p-2">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Hidden Audio Element -->
+        <audio id="bgm-audio" loop preload="none">
+            <source src="https://img.ai365.fans/artworks/3aad98c2-8ddf-4d92-8b24-b86f46271312/wpo874h84.mp3" type="audio/mpeg">
+            您的瀏覽器不支援音樂撥放。
+        </audio>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-6 py-4 space-y-3">
+            <a href="#about" class="block text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400">專業經歷</a>
+            <a href="#skills" class="block text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400">核心能力</a>
+            <a href="#m3le" class="block text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400">2026 M3LE 專案</a>
+            <a href="#journey" class="block text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400">技術探索之旅</a>
+            <a href="#contact" class="block text-emerald-600 dark:text-emerald-400 font-semibold">與我聯繫</a>
+        </div>
+    </header>
+
+    <main class="pt-24 pb-16">
+        <!-- Hero Section -->
+        <section id="about" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider">
+                        <i class="fa-solid fa-microchip"></i> <span>20 年嵌入式系統 Driver 開發經驗</span>
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-slate-900 dark:text-white">
+                        系統廠技術經理 & <span class="text-emerald-600 dark:text-emerald-400">底層韌體專家</span>
+                    </h1>
+                    <p class="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+                        擁有 <strong class="text-slate-900 dark:text-white font-semibold">20年嵌入式系統 driver 開發經驗</strong>，曾任系統廠技術經理。專精 Linux Yocto 與 MCU（NXP、Renesas RH850 FreeRTOS）雙平台 driver 開發，涵蓋 Lvds Panel、CAN/CANFD Bus、SerDes Camera、Light Sensor 等模組，橫跨 I2C、SPI、USB、UART 多種介面。
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <a href="#m3le" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-md transition-all flex items-center space-x-2">
+                            <span>檢視 M3LE 專案實績</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <a href="#skills" class="px-6 py-3 rounded-xl card-light dark:card-dark hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold transition-all">
+                            核心能力總覽
+                        </a>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 flex flex-col items-center">
+                    <!-- Profile Card -->
+                    <div class="card-light dark:card-dark rounded-3xl p-6 sm:p-8 relative overflow-hidden w-full max-w-sm text-center shadow-xl">
+                        <div class="relative w-36 h-36 mx-auto mb-6 rounded-2xl p-1 bg-gradient-to-tr from-emerald-500 to-teal-600 shadow-lg">
+                            <img src="https://img.ai365.fans/cdn-cgi/image/width=1400,quality=90,format=auto/artworks/3aad98c2-8ddf-4d92-8b24-b86f46271312/sqd3eegopal.png" alt="Developer Profile" class="w-full h-full object-cover rounded-xl bg-slate-900" onerror="this.src='https://placehold.co/300x300/0f172a/ffffff?text=Avatar'">
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Technical Manager</h3>
+                        <p class="text-xs text-emerald-600 dark:text-emerald-400 font-mono mb-4">Embedded Driver & Hardware Debugging</p>
+                        <div class="bg-slate-100 dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 text-left space-y-1">
+                            <div><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Linux Yocto & FreeRTOS 雙平台</div>
+                            <div><i class="fa-solid fa-check text-emerald-500 mr-2"></i> 示波器與邏輯分析儀實測專家</div>
+                            <div><i class="fa-solid fa-check text-emerald-500 mr-2"></i> 跨團隊高效溝通與量產驗證</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Skills Section -->
+        <section id="skills" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-200 dark:border-slate-800">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">核心能力</h2>
+                <p class="text-slate-600 dark:text-slate-400">結合 20 年實戰經驗的驅動開發、訊號除錯與量產建立能力。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="card-light dark:card-dark rounded-2xl p-6 hover:border-emerald-500/50 transition-all group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Driver Porting</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        精專 Linux Yocto 與 MCU（NXP、Renesas RH850 FreeRTOS）雙平台，涵蓋 Lvds Panel、CAN/CANFD、SerDes Camera、Light Sensor 等模組及多種介面。
+                    </p>
+                </div>
+
+                <div class="card-light dark:card-dark rounded-2xl p-6 hover:border-emerald-500/50 transition-all group">
+                    <div class="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-wave-square"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">硬體訊號除錯</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        擅長用示波器與 Logic Analyzer 實測訊號，以數據精準定位軟硬體交界問題（如 CAN INH 硬體設計缺陷導致重開機）。
+                    </p>
+                </div>
+
+                <div class="card-light dark:card-dark rounded-2xl p-6 hover:border-emerald-500/50 transition-all group">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-users-gear"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">跨團隊技術溝通</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        憑藉技術經理資歷，與硬體團隊高效協作解決電路設計缺陷，加速產品開發時程。
+                    </p>
+                </div>
+
+                <div class="card-light dark:card-dark rounded-2xl p-6 hover:border-emerald-500/50 transition-all group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">量產驗證流程建立</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        完成 board-level 開發驗證，並建立標準化 board bring-up 流程與 Shell Script 自動化 flash 更新工具。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2026 Renesas M3LE Project Section -->
+        <section id="m3le" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-200 dark:border-slate-800">
+            <div class="card-light dark:card-dark rounded-3xl p-8 sm:p-12 relative overflow-hidden shadow-xl">
+                <div class="max-w-3xl">
+                    <span class="text-xs uppercase font-bold tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">2026 Core Milestone</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white mt-4 mb-6">2026 年 Renesas M3LE 公版專案實績</h2>
+                    <ul class="space-y-4 text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+                        <li class="flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1.5"></i>
+                            <span><strong>Board Bring Up：</strong>主導 Renesas m3le 公版 Sample Board 的完整 Board bring up 初始化。</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1.5"></i>
+                            <span><strong>驅動程式開發：</strong>獨立完成關鍵模組從零到有的開發（MCU、CAN Bus、Lvds Panel Driver）。</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1.5"></i>
+                            <span><strong>驗證與自動化工具：</strong>落實 board-level 開發驗證，建立標準化 board bring-up 流程與 Shell Script 自動化 flash 更新工具。</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1.5"></i>
+                            <span><strong>解決硬體問題：</strong>擅長用示波器與 Logic Analyzer 實測訊號，以數據精準定位軟硬體交界問題（如 CAN INH 硬體設計缺陷導致重開機），並據此與硬體團隊高效協作解決，加速產品開發時程。</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2026 August Journey Section -->
+        <section id="journey" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-200 dark:border-slate-800">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs uppercase font-bold tracking-widest text-teal-600 dark:text-teal-400 bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/20">Exploration Journey</span>
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-4 mb-3">2026年8月耍廢之旅 (技術探索)</h2>
+                <p class="text-slate-600 dark:text-slate-400">從邊緣 AI 晶片、機器人實作到大型多模態模型的深度探索歷程。</p>
+            </div>
+
+            <div class="relative border-l-2 border-emerald-500/30 ml-4 sm:ml-40 space-y-10">
+                <!-- Item 1 -->
+                <div class="relative pl-8 sm:pl-12">
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-slate-50 dark:ring-slate-950"></div>
+                    <div class="sm:absolute sm:-left-40 sm:text-right sm:w-32 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-sm pt-1">
+                        8/1 ~ 8/8
+                    </div>
+                    <div class="card-light dark:card-dark rounded-2xl p-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-microchip text-emerald-500"></i>
+                            <span>NVIDIA Orin Nano 8G Driver Porting</span>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mt-2">
+                            Porting NVIDIA Orin Nano 8G for CSI Camera, UART, I2C, GPIO app for board level tools.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="relative pl-8 sm:pl-12">
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-teal-500 ring-4 ring-slate-50 dark:ring-slate-950"></div>
+                    <div class="sm:absolute sm:-left-40 sm:text-right sm:w-32 text-teal-600 dark:text-teal-400 font-mono font-bold text-sm pt-1">
+                        8/9 ~ 8/15
+                    </div>
+                    <div class="card-light dark:card-dark rounded-2xl p-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-robot text-teal-500"></i>
+                            <span>Turbo Pi AMR 專案整合</span>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mt-2">
+                            Turbo Pi AMR 移動機器人系統架構與感測器實驗。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="relative pl-8 sm:pl-12">
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-cyan-500 ring-4 ring-slate-50 dark:ring-slate-950"></div>
+                    <div class="sm:absolute sm:-left-40 sm:text-right sm:w-32 text-cyan-600 dark:text-cyan-400 font-mono font-bold text-sm pt-1">
+                        8/15 ~ 8/22
+                    </div>
+                    <div class="card-light dark:card-dark rounded-2xl p-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-gamepad text-cyan-500"></i>
+                            <span>藍牙人形機器人操控</span>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mt-2">
+                            NVIDIA Orin Nano 利用藍牙控制人形機器人 (Alpha)。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item 4 -->
+                <div class="relative pl-8 sm:pl-12">
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-slate-50 dark:ring-slate-950"></div>
+                    <div class="sm:absolute sm:-left-40 sm:text-right sm:w-32 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-sm pt-1">
+                        8/16 ~ 8/31
+                    </div>
+                    <div class="card-light dark:card-dark rounded-2xl p-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-brain text-emerald-500"></i>
+                            <span>Orin Nano 模型驗證</span>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mt-2">
+                            NVIDIA Orin Nano 開發版實驗：驗證 LLM, VLM Model。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item 5 -->
+                <div class="relative pl-8 sm:pl-12">
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-teal-500 ring-4 ring-slate-50 dark:ring-slate-950"></div>
+                    <div class="sm:absolute sm:-left-40 sm:text-right sm:w-32 text-teal-600 dark:text-teal-400 font-mono font-bold text-sm pt-1">
+                        9/3 ~
+                    </div>
+                    <div class="card-light dark:card-dark rounded-2xl p-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-desktop text-teal-500"></i>
+                            <span>RTX 5060 16G 站台升級</span>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mt-2">
+                            RTX 5060 16G：加入 LLM、VLM Model 深度整合與實驗。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item 6 -->
+                <div class="relative pl-8 sm:pl-12">
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-cyan-500 ring-4 ring-slate-50 dark:ring-slate-950"></div>
+                    <div class="sm:absolute sm:-left-40 sm:text-right sm:w-32 text-cyan-600 dark:text-cyan-400 font-mono font-bold text-sm pt-1">
+                        9/10
+                    </div>
+                    <div class="card-light dark:card-dark rounded-2xl p-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-server text-cyan-500"></i>
+                            <span>NVIDIA AGX 平台實作</span>
+                        </h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 mt-2">
+                            NVIDIA AGX 平台：LLM、VLM Model 部署與推論效能驗證。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center border-t border-slate-200 dark:border-slate-800">
+            <div class="card-light dark:card-dark rounded-3xl p-8 sm:p-12 shadow-xl">
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">準備好打造下一代嵌入式系統了嗎？</h2>
+                <p class="text-slate-600 dark:text-slate-300 max-w-xl mx-auto mb-8">
+                    歡迎隨時與我聯繫交流 Driver Porting、硬體訊號除錯或是邊緣 AI 部署！
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="mailto:example@domain.com" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-md transition-all flex items-center space-x-2">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span>發送郵件聯繫</span>
+                    </a>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-xl card-light dark:card-dark hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold transition-all flex items-center space-x-2">
+                        <i class="fa-brands fa-github"></i>
+                        <span>GitHub 專案集</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-8 text-center text-sm text-slate-500 transition-colors">
+        <p>&copy; 2026 Embedded Systems & AI Exploration. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Background Music Control
+        const audioEl = document.getElementById('bgm-audio');
+        const audioToggleBtn = document.getElementById('audio-toggle');
+        const audioIcon = document.getElementById('audio-icon');
+        const audioText = document.getElementById('audio-text');
+        let isAudioPlaying = false;
+
+        audioToggleBtn.addEventListener('click', () => {
+            if (isAudioPlaying) {
+                audioEl.pause();
+                isAudioPlaying = false;
+                audioIcon.className = "fa-solid fa-volume-xmark text-sm";
+                audioText.textContent = "BGM 關閉";
+                audioToggleBtn.classList.remove('bg-emerald-500', 'text-white');
+            } else {
+                audioEl.play().then(() => {
+                    isAudioPlaying = true;
+                    audioIcon.className = "fa-solid fa-volume-high text-sm";
+                    audioText.textContent = "BGM 播放中";
+                    audioToggleBtn.classList.add('bg-emerald-500', 'text-white');
+                }).catch(err => {
+                    console.log("Audio play blocked or error:", err);
+                });
+            }
+        });
+
+        // Dark / Light Theme Toggle
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlEl = document.documentElement;
+
+        // Check initial theme state
+        if (htmlEl.classList.contains('dark')) {
+            themeIcon.className = "fa-solid fa-sun text-sm";
+        } else {
+            themeIcon.className = "fa-solid fa-moon text-sm";
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                themeIcon.className = "fa-solid fa-moon text-sm";
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlEl.classList.add('dark');
+                themeIcon.className = "fa-solid fa-sun text-sm";
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    </script>
+</body>
+</html>
